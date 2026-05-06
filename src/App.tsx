@@ -26,6 +26,44 @@ import { Game } from './types';
 
 // --- Components ---
 
+const AdBanner = ({ adKey, height, width, className = "" }: { adKey: string, height: number, width: number, className?: string }) => {
+  const containerRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (containerRef.current) {
+      // Clear existing content to avoid duplicate ads on re-render
+      containerRef.current.innerHTML = '';
+      
+      const confScript = document.createElement('script');
+      confScript.type = 'text/javascript';
+      confScript.innerHTML = `
+        atOptions = {
+          'key' : '${adKey}',
+          'format' : 'iframe',
+          'height' : ${height},
+          'width' : ${width},
+          'params' : {}
+        };
+      `;
+      
+      const invokeScript = document.createElement('script');
+      invokeScript.type = 'text/javascript';
+      invokeScript.src = `https://www.highperformanceformat.com/${adKey}/invoke.js`;
+      
+      containerRef.current.appendChild(confScript);
+      containerRef.current.appendChild(invokeScript);
+    }
+  }, [adKey, height, width]);
+
+  return (
+    <div 
+      className={`flex justify-center overflow-hidden pointer-events-auto ${className}`} 
+      style={{ minWidth: `${width}px`, minHeight: `${height}px` }}
+      ref={containerRef} 
+    />
+  );
+};
+
 const OSBadge = () => {
   const [os, setOs] = useState<'iOS' | 'Android' | 'Desktop'>('Desktop');
 
@@ -590,7 +628,18 @@ const ProductPage = ({ game, onClose }: { game: Game; onClose: () => void }) => 
                 </div>
               </div>
             </div>
+
+            {/* Sidebar Ad 160x600 */}
+            <div className="hidden lg:block sticky top-24">
+              <AdBanner adKey="6c434e01ee85902add79a8569d179c4f" height={600} width={160} />
+            </div>
           </div>
+        </div>
+
+        {/* Bottom Ad 300x250 */}
+        <div className="mt-20 pt-20 border-t border-gray-100 flex flex-col items-center gap-8">
+          <h3 className="text-xs font-black uppercase tracking-[0.2em] text-gray-400">Sponsored Content</h3>
+          <AdBanner adKey="0825d8195c5f64cafb73f179d46e3602" height={250} width={300} className="shadow-lg rounded-xl" />
         </div>
       </div>
 
@@ -770,6 +819,12 @@ export default function App() {
                     Global CDN network ensures lightning-fast distribution of heavy game assets worldwide.
                   </p>
                 </div>
+              </div>
+
+              {/* Home Page Ad 300x250 */}
+              <div className="mt-24 flex flex-col items-center gap-6">
+                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-gray-400">Recommended for You</h3>
+                <AdBanner adKey="0825d8195c5f64cafb73f179d46e3602" height={250} width={300} className="shadow-xl rounded-2xl" />
               </div>
             </section>
           </>
